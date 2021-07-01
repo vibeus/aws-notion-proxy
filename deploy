@@ -1,0 +1,7 @@
+#!/bin/bash
+
+FUNCTION_NAME=vibe-handbook-notion-proxy
+ZIP_FILE=lambda-code.zip
+
+zip -9rFSq $ZIP_FILE notion-proxy.py vendors -x "*.pyc"
+aws lambda update-function-code --function-name $FUNCTION_NAME --zip-file fileb://$ZIP_FILE

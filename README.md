@@ -21,8 +21,10 @@ compression.
 
 To deploy to your own AWS environment, take a look at [sample terraform file][4].
 
-Once infrastructure is successfully applied, use `./deploy` script to update lambda function code (with necessary
-modification such as function name, AWS region, etc.)
+Once infrastructure is successfully applied:
+- Run `pip install -r requirements.txt -t vendors` to install dependencies.
+- Run `./deploy` script to update lambda function code (with necessary modification such as function name,
+  AWS region, etc.)
 
 ---
 

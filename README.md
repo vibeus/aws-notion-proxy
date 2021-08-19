@@ -19,12 +19,16 @@ We use AWS API Gateway to forward requests to Notion's server, and inject some J
 is detected.  We didn't choose Lambda@Edge because it has 1MB payload limit, and Notion's app.js is almost 1MB after
 compression.
 
-To deploy to your own AWS environment, take a look at [sample terraform file][4].
+## Deploy
+We use [Chalice][4] to manage AWS infrasuture for this tiny project.
 
-Once infrastructure is successfully applied:
-- Run `pip install -r requirements.txt -t vendors` to install dependencies.
-- Run `./deploy` script to update lambda function code (with necessary modification such as function name,
-  AWS region, etc.)
+```shell
+virtualenv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+
+chalice deploy
+```
 
 ---
 
@@ -34,4 +38,4 @@ and added our own requirements on top of it.
 [1]: https://notion.so
 [2]: https://super.so
 [3]: https://hostnotion.co
-[4]: https://github.com/vibeus/aws-notion-proxy/blob/master/infra/sample.tf
+[4]: https://github.com/aws/chalice

@@ -1,0 +1,13 @@
+{
+  "version": "2.0",
+  "app_name": "notion-proxy",
+  "stages": {
+    "dev": {
+      "api_gateway_stage": "api"
+    }
+  },
+  "api_gateway_custom_domain": {
+    "domain_name": "vibe.pub",
+    "certificate_arn": "arn:aws:acm:us-east-1:663354718506:certificate/b5a8f8a3-70c7-470d-a2cd-131f486106ad"
+  }
+}

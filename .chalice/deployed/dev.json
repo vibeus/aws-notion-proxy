@@ -1,0 +1,37 @@
+{
+  "resources": [
+    {
+      "name": "default-role",
+      "resource_type": "iam_role",
+      "role_arn": "arn:aws:iam::663354718506:role/notion-proxy-dev",
+      "role_name": "notion-proxy-dev"
+    },
+    {
+      "name": "api_handler",
+      "resource_type": "lambda_function",
+      "lambda_arn": "arn:aws:lambda:us-west-2:663354718506:function:notion-proxy-dev"
+    },
+    {
+      "name": "rest_api",
+      "resource_type": "rest_api",
+      "rest_api_id": "yo8f27msnc",
+      "rest_api_url": "https://yo8f27msnc.execute-api.us-west-2.amazonaws.com/api/"
+    },
+    {
+      "name": "api_gateway_custom_domain",
+      "resource_type": "domain_name",
+      "hosted_zone_id": "Z2FDTNDATAQYW2",
+      "alias_domain_name": "d35vi941kwlm0b.cloudfront.net",
+      "certificate_arn": "arn:aws:acm:us-east-1:663354718506:certificate/b5a8f8a3-70c7-470d-a2cd-131f486106ad",
+      "security_policy": "TLS_1_2",
+      "domain_name": "vibe.pub",
+      "api_mapping": [
+        {
+          "key": "/"
+        }
+      ]
+    }
+  ],
+  "schema_version": "2.0",
+  "backend": "api"
+}

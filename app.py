@@ -1,3 +1,4 @@
+import gzip
 import requests
 from chalice import Chalice, Response
 
@@ -21,31 +22,39 @@ LOGIN_JS = """
 })();
 """
 
-app = Chalice(app_name='notion-proxy')
-app.api.binary_types = [ "*/*" ] 
+app = Chalice(app_name="notion-proxy")
+app.api.binary_types = ["*/*"]
 
-@app.route('/', methods=["GET", "HEAD", "OPTIONS"])
+
+@app.route("/", methods=["GET", "HEAD", "OPTIONS"])
 def index():
     if app.current_request.method == "OPTIONS":
         return handle_options()
 
-    return Response(None,
-            status_code=302,
-                    headers={
-                        "Location": f"https://{MY_DOMAIN}/{ROOT_PAGE}",
-                        })
+    return Response(
+        None,
+        status_code=302,
+        headers={
+            "Location": f"https://{MY_DOMAIN}/{ROOT_PAGE}",
+        },
+    )
 
 
-@app.route('/{proxy+}', methods=["GET", "POST", "PUT", "PATCH", "HEAD", "OPTIONS"])
+@app.route("/{proxy+}", methods=["GET", "POST", "PUT", "PATCH", "HEAD", "OPTIONS"])
 def proxy():
     if app.current_request.method == "OPTIONS":
         return handle_options()
 
     path = app.current_request.uri_params.get("proxy")
-    if path.startswith("api/") or path.startswith("image/") or path.startswith("images/"):
+    if (
+        path.startswith("api/")
+        or path.startswith("image/")
+        or path.startswith("images/")
+    ):
         return forward()
 
     if path.startswith("app") and path.endswith(".js"):
+
         def api_rewriter(content):
             s = content.decode("utf-8")
             s += LOGIN_JS
@@ -55,7 +64,10 @@ def proxy():
 
     def body_rewriter(content):
         s = content.decode("utf-8")
-        s = s.replace('domainBaseUrl:"https://www.notion.so"', f'domainBaseUrl:"https://{MY_DOMAIN}"')
+        s = s.replace(
+            'domainBaseUrl:"https://www.notion.so"',
+            f'domainBaseUrl:"https://{MY_DOMAIN}"',
+        )
         return s.encode("utf-8")
 
     return forward(body_rewriter)
@@ -71,40 +83,46 @@ def handle_options():
         and "Access-Control-Request-Headers" in request_headers
     ):
         return Response(
-                None,
-            status_code= 200,
-            headers= {
+            None,
+            status_code=200,
+            headers={
                 "Access-Control-Allow-Origin": "*",
                 "Access-Control-Allow-Methods": "GET, HEAD, POST, PUT, OPTIONS",
                 "Access-Control-Allow-Headers": "Content-Type",
-            })
+            },
+        )
     else:
         return Response(
-            status_code= 200,
-            headers= {
+            status_code=200,
+            headers={
                 "Allow": "GET, HEAD, POST, PUT, OPTIONS",
-            })
+            },
+        )
 
 
-def forward(body_rewriter = None):
+def forward(body_rewriter=None):
     r = app.current_request
     path = r.uri_params["proxy"]
 
     resp = requests.request(
-            r.method,
-            f"https://{NOTION_DOMAIN}/{path}",
-            headers=clean_up_request_headers(r.headers),
-            data=r.raw_body,
-            params=r.query_params)
+        r.method,
+        f"https://{NOTION_DOMAIN}/{path}",
+        headers=clean_up_request_headers(r.headers),
+        data=r.raw_body,
+        params=r.query_params,
+    )
 
     content = resp.content
     if body_rewriter:
         content = body_rewriter(content)
 
-    return Response(
-            content,
-            status_code=resp.status_code,
-            headers=clean_up_response_headers(resp.headers))
+    content = gzip.compress(content)
+
+    headers = clean_up_response_headers(resp.headers)
+    headers["content-encoding"] = "gzip"
+
+    return Response(content, status_code=resp.status_code, headers=headers)
+
 
 def clean_up_request_headers(headers):
     copy = {}
@@ -116,6 +134,7 @@ def clean_up_request_headers(headers):
             continue
         copy[k] = v
     return copy
+
 
 def clean_up_response_headers(headers):
     copy = {}
